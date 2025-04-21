@@ -13,7 +13,11 @@ import (
 	"github.com/emicklei/nanny"
 )
 
-var targetCommand = flag.String("command", "", "full command with arguments")
+var (
+	targetCommand = flag.String("command", "", "full command with arguments")
+	errLog        = flag.String("log", "mcp-log-proxy.log", "file to append errors to")
+	httPort       = flag.Int("port", 5656, "port to listen on")
+)
 
 func main() {
 	flag.Parse()
@@ -21,30 +25,23 @@ func main() {
 		flag.Usage()
 		return
 	}
-	errOut, _ := os.OpenFile(
-		"/Users/ernestmicklei/Documents/mcp-log-proxy.log",
-		os.O_APPEND|os.O_CREATE|os.O_WRONLY,
-		0644)
+	errOut, _ := os.OpenFile(*errLog, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	defer errOut.Close()
 
+	// setup nanny
 	logHandler := slog.NewTextHandler(errOut, nil)
 	rec := nanny.NewRecorder()
 	reclog := slog.New(nanny.NewLogHandler(rec, logHandler, slog.LevelInfo))
 	slog.SetDefault(reclog)
-	http.Handle("/", nanny.NewBrowser(rec, nanny.BrowserOptions{PageSize: 100}))
+	http.Handle("/", nanny.NewBrowser(rec, nanny.BrowserOptions{PageSize: 100, PageTitle: "mcp-log-proxy"}))
 
+	// serve nanny
 	go func() {
-		http.ListenAndServe(":5656", nil)
+		http.ListenAndServe(fmt.Sprintf(":%d", *httPort), nil)
 	}()
 
+	// run target command
 	parts := strings.Split(*targetCommand, " ")
-
-	// msg := map[string]any{
-	// 	"command": parts[0],
-	// 	"args":    parts[1:],
-	// }
-	// json.NewEncoder(os.Stderr).Encode(msg)
-
 	cmd := exec.Command(parts[0], parts[1:]...)
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
