@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -87,7 +88,12 @@ func runTargetToClient(stdout io.ReadCloser) {
 		scanner := bufio.NewScanner(stdout)
 		for scanner.Scan() {
 			line := scanner.Text()
-			slog.Info(fmt.Sprintf("%s: ... client <= proxy <= target", parseSequenceID(line)), "line", line)
+			level := slog.LevelInfo
+			id, isError := parseSequenceIDAndIsError(line)
+			if isError {
+				level = slog.LevelError
+			}
+			slog.Log(context.Background(), level, fmt.Sprintf("%s: ... client <= proxy <= target", id), "line", line)
 			fmt.Fprintln(os.Stdout, line)
 		}
 	}()
@@ -102,33 +108,40 @@ func runClientToTarget(stdin io.WriteCloser) {
 				slog.Error("failed to read from stdin", "error", err)
 				os.Exit(1)
 			}
-			slog.Info(fmt.Sprintf("%s: client => proxy => target", parseSequenceID(line)), "line", line)
+			level := slog.LevelInfo
+			id, isError := parseSequenceIDAndIsError(line)
+			if isError {
+				level = slog.LevelError
+			}
+			slog.Log(context.Background(), level, fmt.Sprintf("%s: client => proxy => target", id), "line", line)
 			fmt.Fprintln(stdin, line)
 		}
 	}()
 }
 
 // {"method":"tools/list","jsonrpc":"2.0","id":1}
-func parseSequenceID(line string) string {
+func parseSequenceIDAndIsError(line string) (string, bool) {
 	if (line == "") || (line[0] != '{') {
-		return "?"
+		return "?", false
 	}
 	m := map[string]any{}
 	err := json.Unmarshal([]byte(line), &m)
 	if err != nil {
-		return "?"
+		return "?", false
+	}
+	isError := false
+	if _, ok := m["error"]; ok {
+		isError = true
 	}
 	if id, ok := m["id"]; ok {
 		switch id := id.(type) {
 		case string:
-			return id
+			return id, isError
 		case int:
-			return fmt.Sprintf("%d", id)
+			return fmt.Sprintf("%d", id), isError
 		case float64:
-			return fmt.Sprintf("%v", id)
-		default:
-			return "?"
+			return fmt.Sprintf("%v", id), isError
 		}
 	}
-	return "?"
+	return "?", isError
 }
