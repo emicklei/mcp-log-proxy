@@ -17,10 +17,20 @@ For example, to proxy traffic to the `melrose-mcp` server, the full command is:
 
 This example assumes that both tools are available on your execution PATH.
 
-Optionally, you can override the log file location of the proxy that captures errors in the proxy itself.
+Once the proxy is started, messages can be viewed on `http:/localhost:5656`.
+
+#### optional flags
+
+You can override the Web page title using the `title` flag:
+
+    mcp-log-proxy -command melrose-mcp -title "Melrōse (proxy)"   
+
+You can override the HTTP port(default 5656) using the `port` flag:
+
+    mcp-log-proxy -command melrose-mcp -port 9999
+
+You can set override the log file location of the proxy that captures errors in the proxy itself.
 
     mcp-log-proxy -command melrose-mcp -log /your/logs/mcp-log-proxy.log
-
-When the proxy is started, messages can be viewed on `http:/localhost:5656` (use `-port` to override).
 
 &copy; 2025, https://ernestmicklei.com. MIT License.

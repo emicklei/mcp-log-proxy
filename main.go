@@ -20,6 +20,7 @@ var (
 	targetCommand = flag.String("command", "", "full command with arguments")
 	errLog        = flag.String("log", "mcp-log-proxy.log", "file to append errors to")
 	httPort       = flag.Int("port", 5656, "port to listen on")
+	pageTitle     = flag.String("title", "mcp-log-proxy", "title of the web page")
 )
 
 func main() {
@@ -42,7 +43,7 @@ func main() {
 	rec := nanny.NewRecorder()
 	reclog := slog.New(nanny.NewLogHandler(rec, logHandler, slog.LevelInfo))
 	slog.SetDefault(reclog)
-	http.Handle("/", nanny.NewBrowser(rec, nanny.BrowserOptions{PageSize: 100, PageTitle: "mcp-log-proxy"}))
+	http.Handle("/", nanny.NewBrowser(rec, nanny.BrowserOptions{PageSize: 100, PageTitle: *pageTitle}))
 
 	// serve nanny
 	go func() {
