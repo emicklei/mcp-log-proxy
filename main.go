@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
@@ -86,7 +87,7 @@ func runTargetToClient(stdout io.ReadCloser) {
 		scanner := bufio.NewScanner(stdout)
 		for scanner.Scan() {
 			line := scanner.Text()
-			slog.Info("<< client <- proxy -> target", "line", line)
+			slog.Info(fmt.Sprintf("%s: ... client <- proxy <- target", parseSequenceID(line)), "line", line)
 			fmt.Fprintln(os.Stdout, line)
 		}
 	}()
@@ -101,8 +102,33 @@ func runClientToTarget(stdin io.WriteCloser) {
 				slog.Error("failed to read from stdin", "error", err)
 				os.Exit(1)
 			}
-			slog.Info(">> client -> proxy -> target", "line", line)
+			slog.Info(fmt.Sprintf("%s:client -> proxy -> target", parseSequenceID(line)), "line", line)
 			fmt.Fprintln(stdin, line)
 		}
 	}()
+}
+
+// {"method":"tools/list","jsonrpc":"2.0","id":1}
+func parseSequenceID(line string) string {
+	if (line == "") || (line[0] != '{') {
+		return "?"
+	}
+	m := map[string]any{}
+	err := json.Unmarshal([]byte(line), &m)
+	if err != nil {
+		return "?"
+	}
+	if id, ok := m["id"]; ok {
+		switch id := id.(type) {
+		case string:
+			return id
+		case int:
+			return fmt.Sprintf("%d", id)
+		case float64:
+			return fmt.Sprintf("%v", id)
+		default:
+			return "?"
+		}
+	}
+	return "?"
 }
