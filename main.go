@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 	"os"
@@ -21,15 +22,21 @@ var (
 
 func main() {
 	flag.Parse()
+	// check if target command is provided
 	if *targetCommand == "" {
 		flag.Usage()
 		return
 	}
-	errOut, _ := os.OpenFile(*errLog, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	defer errOut.Close()
+	// open error log file
+	logFile, err := os.OpenFile(*errLog, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to open error log file: %v\n", err)
+		os.Exit(1)
+	}
+	defer logFile.Close()
 
 	// setup nanny
-	logHandler := slog.NewTextHandler(errOut, nil)
+	logHandler := slog.NewTextHandler(logFile, nil)
 	rec := nanny.NewRecorder()
 	reclog := slog.New(nanny.NewLogHandler(rec, logHandler, slog.LevelInfo))
 	slog.SetDefault(reclog)
@@ -43,6 +50,8 @@ func main() {
 	// run target command
 	parts := strings.Split(*targetCommand, " ")
 	cmd := exec.Command(parts[0], parts[1:]...)
+
+	// set up pipes for stdin and stdout
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		slog.Error("failed to get stdin pipe", "error", err)
@@ -53,9 +62,37 @@ func main() {
 		slog.Error("failed to get stdout pipe", "error", err)
 		os.Exit(1)
 	}
-	// stderr?
 
 	// client -> proxy -> target
+	runClientToTarget(stdin)
+
+	// target -> proxy -> client
+	runTargetToClient(stdout)
+
+	// run target command
+	if err := cmd.Start(); err != nil {
+		slog.Error("failed to start target command", "error", err, "command", parts[0], "args", parts[1:])
+		os.Exit(1)
+	}
+	// wait for target command to finish
+	if err := cmd.Wait(); err != nil {
+		slog.Error("failed to wait for target command", "error", err, "command", parts[0], "args", parts[1:])
+		os.Exit(1)
+	}
+}
+
+func runTargetToClient(stdout io.ReadCloser) {
+	go func() {
+		scanner := bufio.NewScanner(stdout)
+		for scanner.Scan() {
+			line := scanner.Text()
+			slog.Info("target -> proxy -> client", "line", line)
+			fmt.Fprintln(os.Stdout, line)
+		}
+	}()
+}
+
+func runClientToTarget(stdin io.WriteCloser) {
 	go func() {
 		reader := bufio.NewReader(os.Stdin)
 		for {
@@ -68,21 +105,4 @@ func main() {
 			fmt.Fprintln(stdin, line)
 		}
 	}()
-	// target -> proxy -> client
-	go func() {
-		scanner := bufio.NewScanner(stdout)
-		for scanner.Scan() {
-			line := scanner.Text()
-			slog.Info("target -> proxy -> client", "line", line)
-			fmt.Fprintln(os.Stdout, line)
-		}
-	}()
-	if err := cmd.Start(); err != nil {
-		slog.Error("failed to start target command", "error", err, "command", parts[0], "args", parts[1:])
-		os.Exit(1)
-	}
-	if err := cmd.Wait(); err != nil {
-		slog.Error("failed to wait for target command", "error", err, "command", parts[0], "args", parts[1:])
-		os.Exit(1)
-	}
 }
