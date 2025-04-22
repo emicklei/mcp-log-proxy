@@ -13,13 +13,13 @@ Currently, it only supports the STDIO interface.
 
 For example, to proxy traffic to the `melrose-mcp` server, the full command is:
 
-    mcp-log-proxy -command "melrose-mcp"
+    mcp-log-proxy -command melrose-mcp
 
 This example assumes that both tools are available on your execution PATH.
 
 Optionally, you can override the log file location of the proxy that captures errors in the proxy itself.
 
-    mcp-log-proxy -command "melrose-mcp" -log /your/logs/mcp-log-proxy.log
+    mcp-log-proxy -command melrose-mcp -log /your/logs/mcp-log-proxy.log
 
 When the proxy is started, messages can be viewed on `http:/localhost:5656` (use `-port` to override).
 
