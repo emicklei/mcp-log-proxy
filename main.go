@@ -87,7 +87,7 @@ func runTargetToClient(stdout io.ReadCloser) {
 		scanner := bufio.NewScanner(stdout)
 		for scanner.Scan() {
 			line := scanner.Text()
-			slog.Info(fmt.Sprintf("%s: ... client <- proxy <- target", parseSequenceID(line)), "line", line)
+			slog.Info(fmt.Sprintf("%s: ... client <= proxy <= target", parseSequenceID(line)), "line", line)
 			fmt.Fprintln(os.Stdout, line)
 		}
 	}()
@@ -102,7 +102,7 @@ func runClientToTarget(stdin io.WriteCloser) {
 				slog.Error("failed to read from stdin", "error", err)
 				os.Exit(1)
 			}
-			slog.Info(fmt.Sprintf("%s:client -> proxy -> target", parseSequenceID(line)), "line", line)
+			slog.Info(fmt.Sprintf("%s: client => proxy => target", parseSequenceID(line)), "line", line)
 			fmt.Fprintln(stdin, line)
 		}
 	}()
