@@ -33,7 +33,7 @@ You can set override the log file location of the proxy that captures errors in 
 
     mcp-log-proxy -command melrose-mcp -log /your/logs/mcp-log-proxy.log
 
-### Claude example
+### Claude examples
 
 This example proxies the use of the `melrose-mcp` server.
 
@@ -50,5 +50,21 @@ This example proxies the use of the `melrose-mcp` server.
         "Claude Melrose MCP"
       ]
     },
+
+Proxying the `browsermcp` server.
+
+    "browsermcp": {
+      "command": "/Users/emicklei/go/bin/mcp-log-proxy",
+      "args": [
+        "-command",
+        "npx @browsermcp/mcp@latest",
+        "-log",
+        "/Users/emicklei/Documents/claude-browsermcp-proxy.log",
+        "-port",
+        "7799",
+        "-title",
+        "Claude Browser MCP"
+      ]
+    }
 
 &copy; 2025, https://ernestmicklei.com. MIT License.

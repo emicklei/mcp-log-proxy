@@ -88,13 +88,13 @@ func runTargetToClient(stdout io.ReadCloser) {
 		scanner := bufio.NewScanner(stdout)
 		for scanner.Scan() {
 			line := scanner.Text()
-			log(" ... client <= proxy <= target", line)
+			log(" ... client <= proxy <= target", "jsonresponse", line)
 			fmt.Fprintln(os.Stdout, line)
 		}
 	}()
 }
 
-func log(flow, line string) {
+func log(flow, key, line string) {
 	level := slog.LevelError
 	id := "?"
 	msg, ok := parseJSONMessage(line)
@@ -109,7 +109,7 @@ func log(flow, line string) {
 		}
 		id = getMessageID(msg)
 	}
-	slog.Log(context.Background(), level, fmt.Sprintf("%s:%s", id, flow), "line", line)
+	slog.Log(context.Background(), level, fmt.Sprintf("%s:%s", id, flow), key, line)
 }
 
 func runClientToTarget(stdin io.WriteCloser) {
@@ -118,10 +118,13 @@ func runClientToTarget(stdin io.WriteCloser) {
 		for {
 			line, err := reader.ReadString('\n')
 			if err != nil {
+				if err == io.EOF {
+					break // TODO
+				}
 				slog.Error("failed to read from stdin", "error", err)
 				os.Exit(1)
 			}
-			log(" client => proxy => target", line)
+			log(" client => proxy => target", "jsonrequest", line)
 			fmt.Fprintln(stdin, line)
 		}
 	}()
