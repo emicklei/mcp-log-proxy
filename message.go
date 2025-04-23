@@ -32,28 +32,42 @@ func getMessageID(m map[string]any) string {
 	return "?"
 }
 
+// TODO make struct
 func isErrorMessage(m map[string]any) bool {
 	if _, ok := m["error"]; ok {
 		return true
 	}
-	if _, ok := m["result"]; ok {
-		return false
-	}
-	if _, ok := m["content"]; ok {
-		cm := m["content"].(map[string]any)
-		if v, ok := cm["isError"]; ok {
-			return v == true
+	if result, ok := m["result"].(map[string]any); ok {
+		if list, ok := result["content"].([]any); ok {
+			for _, item := range list {
+				if itemDoc, ok := item.(map[string]any); ok {
+					if err, ok := itemDoc["isError"]; ok {
+						if is, ok := err.(bool); ok {
+							return is
+						}
+					}
+				}
+			}
 		}
 	}
 	return false
 }
 
+// https://modelcontextprotocol.io/specification/2025-03-26
+const (
+	RESOURCE_NOT_FOUND = float64(-32002)
+	METHOD_NOT_FOUND   = float64(-32601)
+)
+
 func isWarnMessage(m map[string]any) bool {
 	if doc, ok := m["error"]; ok {
 		if docMap, ok := doc.(map[string]any); ok {
 			if code, ok := docMap["code"]; ok {
-				if code == -32603 {
+				switch code {
+				case RESOURCE_NOT_FOUND, METHOD_NOT_FOUND:
 					return true
+				default:
+					return false
 				}
 			}
 		}

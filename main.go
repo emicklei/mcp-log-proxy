@@ -99,12 +99,13 @@ func log(flow, line string) {
 	id := "?"
 	msg, ok := parseJSONMessage(line)
 	if ok {
-		if !isErrorMessage(msg) {
+		if isErrorMessage(msg) {
+			// maybe warning
 			if isWarnMessage(msg) {
 				level = slog.LevelWarn
-			} else {
-				level = slog.LevelInfo
 			}
+		} else {
+			level = slog.LevelInfo
 		}
 		id = getMessageID(msg)
 	}
