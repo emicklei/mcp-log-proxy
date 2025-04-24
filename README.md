@@ -33,6 +33,10 @@ You can set override the log file location of the proxy that captures errors in 
 
     mcp-log-proxy -command melrose-mcp -log /your/logs/mcp-log-proxy.log
 
+You can set the browser page title using the `title` flag:
+
+    mcp-log-proxy -command melrose-mcp -title "Melrose MCP proxy"
+
 ### Claude examples
 
 This example proxies the use of the `melrose-mcp` server.

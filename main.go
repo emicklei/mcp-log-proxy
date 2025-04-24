@@ -1,16 +1,16 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"flag"
 	"fmt"
-	"io"
 	"log/slog"
 	"net/http"
 	"os"
 	"os/exec"
+	"os/signal"
 	"strings"
+	"syscall"
 
 	"github.com/emicklei/nanny"
 )
@@ -20,6 +20,7 @@ var (
 	errLog        = flag.String("log", "mcp-log-proxy.log", "file to append errors to")
 	httPort       = flag.Int("port", 5656, "port to listen on")
 	pageTitle     = flag.String("title", "mcp-log-proxy", "title of the web page")
+	isDebug       = flag.Bool("debug", false, "enable debug logging")
 )
 
 func main() {
@@ -40,7 +41,11 @@ func main() {
 	// setup nanny
 	logHandler := slog.NewTextHandler(logFile, nil)
 	rec := nanny.NewRecorder()
-	reclog := slog.New(nanny.NewLogHandler(rec, logHandler, slog.LevelInfo))
+	lvl := slog.LevelInfo
+	if *isDebug {
+		lvl = slog.LevelDebug
+	}
+	reclog := slog.New(nanny.NewLogHandler(rec, logHandler, lvl))
 	slog.SetDefault(reclog)
 	http.Handle("/", nanny.NewBrowser(rec, nanny.BrowserOptions{PageSize: 100, PageTitle: *pageTitle}))
 
@@ -65,11 +70,32 @@ func main() {
 		os.Exit(1)
 	}
 
+	// to stop stdio
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// Set up signal handling
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGTERM, syscall.SIGINT)
+	go func() {
+		<-sigChan
+		slog.Info("received termination signal, shutting down")
+		cancel()
+	}()
+
 	// client -> proxy -> target
-	runClientToTarget(stdin)
+	go func() {
+		runClientToTarget(ctx, stdin)
+		cancel()
+		os.Exit(0)
+	}()
 
 	// target -> proxy -> client
-	runTargetToClient(stdout)
+	go func() {
+		runTargetToClient(ctx, stdout)
+		cancel()
+		os.Exit(0)
+	}()
 
 	// run target command
 	if err := cmd.Start(); err != nil {
@@ -81,51 +107,4 @@ func main() {
 		slog.Error("failed to wait for target command", "error", err, "command", parts[0], "args", parts[1:])
 		os.Exit(1)
 	}
-}
-
-func runTargetToClient(stdout io.ReadCloser) {
-	go func() {
-		scanner := bufio.NewScanner(stdout)
-		for scanner.Scan() {
-			line := scanner.Text()
-			log(" ... client <= proxy <= target", "jsonresponse", line)
-			fmt.Fprintln(os.Stdout, line)
-		}
-	}()
-}
-
-func log(flow, key, line string) {
-	level := slog.LevelError
-	id := "?"
-	msg, ok := parseJSONMessage(line)
-	if ok {
-		if isErrorMessage(msg) {
-			// maybe warning
-			if isWarnMessage(msg) {
-				level = slog.LevelWarn
-			}
-		} else {
-			level = slog.LevelInfo
-		}
-		id = getMessageID(msg)
-	}
-	slog.Log(context.Background(), level, fmt.Sprintf("%s:%s", id, flow), key, line)
-}
-
-func runClientToTarget(stdin io.WriteCloser) {
-	go func() {
-		reader := bufio.NewReader(os.Stdin)
-		for {
-			line, err := reader.ReadString('\n')
-			if err != nil {
-				if err == io.EOF {
-					break // TODO
-				}
-				slog.Error("failed to read from stdin", "error", err)
-				os.Exit(1)
-			}
-			log(" client => proxy => target", "jsonrequest", line)
-			fmt.Fprintln(stdin, line)
-		}
-	}()
 }

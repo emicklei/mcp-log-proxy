@@ -3,16 +3,20 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
+	"strings"
 )
 
 // {"method":"tools/list","jsonrpc":"2.0","id":1}
 func parseJSONMessage(line string) (map[string]any, bool) {
+	line = strings.TrimSpace(line)
 	if (line == "") || (line[0] != '{') {
 		return nil, false
 	}
 	m := map[string]any{}
 	err := json.Unmarshal([]byte(line), &m)
 	if err != nil {
+		slog.Error("[proxy] failed to unmarshal JSON message", "error", err, "line", line)
 		return nil, false
 	}
 	return m, true
