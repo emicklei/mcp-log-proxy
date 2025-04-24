@@ -1,7 +1,10 @@
 ## mcp-log-proxy
 
 `mcp-log-proxy` can be used to see the messages to and from a MCP client and a MCP server using a Web interface.
+
 Currently, it only supports the STDIO interface.
+
+![web log view](doc/screenshot1.png)
 
 ## install
 
