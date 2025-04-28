@@ -32,7 +32,7 @@ You can override the HTTP port(default 5656) using the `port` flag:
 
     mcp-log-proxy -command melrose-mcp -port 9999
 
-You can set override the log file location of the proxy that captures errors in the proxy itself.
+You can override the log file location of the proxy that captures errors in the proxy itself using the `log` flag:
 
     mcp-log-proxy -command melrose-mcp -log /your/logs/mcp-log-proxy.log
 
