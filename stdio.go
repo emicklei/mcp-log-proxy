@@ -29,7 +29,7 @@ func runTargetToClient(ctx context.Context, stdout io.ReadCloser) {
 				// id hack https://github.com/mark3labs/mcp-go/issues/201
 				line = strings.ReplaceAll(line, `"id":null`, `"id":""`)
 
-				isResponse := log(" ... client <= proxy <= target", "jsonresponse", line)
+				isResponse := log(" ... client <= proxy <= target", "line", line, false)
 				if isResponse {
 					io.WriteString(os.Stdout, line)
 					io.WriteString(os.Stdout, "\n")
@@ -55,7 +55,7 @@ func runClientToTarget(ctx context.Context, stdin io.WriteCloser) {
 				}
 				return
 			}
-			isRequest := log(" client => proxy => target", "jsonrequest", line)
+			isRequest := log(" client => proxy => target", "line", line, true)
 			if isRequest {
 				io.WriteString(stdin, line) // \n is part of the line
 			} else {
@@ -66,7 +66,7 @@ func runClientToTarget(ctx context.Context, stdin io.WriteCloser) {
 }
 
 // returns true if the message is a JSON message
-func log(flow, key, line string) bool {
+func log(flow, key, line string, toServer bool) bool {
 	level := slog.LevelError
 	id := "?"
 	msg, ok := parseJSONMessage(line)
@@ -81,6 +81,10 @@ func log(flow, key, line string) bool {
 		}
 		id = getMessageID(msg)
 	}
-	slog.Log(context.Background(), level, fmt.Sprintf("%s:%s", id, flow), key, line)
+	traffic := "request"
+	if !toServer {
+		traffic = "response"
+	}
+	slog.Default().With("traffic", traffic).Log(context.Background(), level, fmt.Sprintf("%s:%s", id, flow), key, line)
 	return ok
 }

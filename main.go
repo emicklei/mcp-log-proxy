@@ -40,7 +40,9 @@ func main() {
 
 	// setup nanny
 	logHandler := slog.NewTextHandler(logFile, nil)
-	rec := nanny.NewRecorder()
+	rec := nanny.NewRecorder(nanny.RecorderOptions{
+		GroupMarkers: []string{"traffic"},
+	})
 	lvl := slog.LevelInfo
 	if *isDebug {
 		lvl = slog.LevelDebug
