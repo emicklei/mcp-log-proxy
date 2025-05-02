@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"bytes"
 	"context"
 	"fmt"
 	"io"
@@ -21,27 +20,19 @@ func runTargetToClient(ctx context.Context, stdout io.ReadCloser) {
 		case <-ctx.Done():
 			return
 		default:
-			fullLine := new(bytes.Buffer)
-			for {
-				lineBytes, isPrefix, err := lineReader.ReadLine()
-				if err != nil {
-					if err != io.EOF {
-						slog.Error("failed to read from stdout", "error", err)
-					}
-					return
+			line, err := lineReader.ReadString('\n')
+			if err != nil {
+				if err != io.EOF {
+					slog.Error("failed to read from stdout", "error", err)
 				}
-				fullLine.Write(lineBytes)
-				if !isPrefix {
-					break
-				}
+				return
 			}
-			// id hack https://github.com/mark3labs/mcp-go/issues/201
-			line := strings.ReplaceAll(fullLine.String(), `"id":null`, `"id":""`)
+			// id hack for clients that cannot handle null
+			line = strings.ReplaceAll(line, `"id":null`, `"id":""`)
 
 			isResponse := log(" ... client <= proxy <= target", "line", line, false)
 			if isResponse {
-				io.WriteString(os.Stdout, line)
-				io.WriteString(os.Stdout, "\n")
+				io.WriteString(os.Stdout, line) // \n is part of the line
 			} else {
 				slog.Debug("not a JSON response message", "line", line, "length", len(line))
 			}
