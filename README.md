@@ -4,7 +4,7 @@
 
 Currently, it only supports the STDIO interface.
 
-![web log view](doc/screenshot1.png)
+![web log view](doc/screenshot2.png)
 
 ## install
 
@@ -73,5 +73,10 @@ Proxying the `browsermcp` server.
         "Claude Browser MCP"
       ]
     }
+
+### Error information
+
+![web log view](doc/screenshot1.png)
+
 
 &copy; 2025, https://ernestmicklei.com. MIT License.

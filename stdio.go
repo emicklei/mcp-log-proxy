@@ -7,7 +7,10 @@ import (
 	"io"
 	"log/slog"
 	"os"
+	"slices"
 	"strings"
+
+	"maps"
 )
 
 func runTargetToClient(ctx context.Context, stdout io.ReadCloser) {
@@ -66,7 +69,7 @@ func runClientToTarget(ctx context.Context, stdin io.WriteCloser) {
 }
 
 // returns true if the message is a JSON message
-func log(flow, key, line string, toServer bool) bool {
+func log(flow, lineKey, line string, toServer bool) bool {
 	level := slog.LevelError
 	id := "?"
 	msg, ok := parseJSONMessage(line)
@@ -77,6 +80,13 @@ func log(flow, key, line string, toServer bool) bool {
 				level = slog.LevelWarn
 			}
 		} else {
+			if m, ok := msg["method"]; ok {
+				flow = m.(string)
+			}
+			if m, ok := msg["result"]; ok {
+				mm := m.(map[string]any)
+				flow = strings.Join(slices.Collect(maps.Keys(mm)), ", ")
+			}
 			level = slog.LevelInfo
 		}
 		id = getMessageID(msg)
@@ -85,6 +95,6 @@ func log(flow, key, line string, toServer bool) bool {
 	if !toServer {
 		traffic = "response"
 	}
-	slog.Default().With("traffic", traffic).Log(context.Background(), level, fmt.Sprintf("%s:%s", id, flow), key, line)
+	slog.Default().With("traffic", traffic).Log(context.Background(), level, fmt.Sprintf("%s:%s", id, flow), lineKey, line)
 	return ok
 }
