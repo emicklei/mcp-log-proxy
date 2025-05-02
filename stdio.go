@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"context"
 	"fmt"
 	"io"
@@ -14,31 +15,35 @@ import (
 )
 
 func runTargetToClient(ctx context.Context, stdout io.ReadCloser) {
-	scanner := bufio.NewScanner(stdout)
+	lineReader := bufio.NewReader(stdout)
 	for {
 		select {
 		case <-ctx.Done():
 			return
 		default:
-			if scanner.Scan() {
-				if err := scanner.Err(); err != nil {
+			fullLine := new(bytes.Buffer)
+			for {
+				lineBytes, isPrefix, err := lineReader.ReadLine()
+				if err != nil {
 					if err != io.EOF {
 						slog.Error("failed to read from stdout", "error", err)
 					}
 					return
 				}
-				line := scanner.Text()
-
-				// id hack https://github.com/mark3labs/mcp-go/issues/201
-				line = strings.ReplaceAll(line, `"id":null`, `"id":""`)
-
-				isResponse := log(" ... client <= proxy <= target", "line", line, false)
-				if isResponse {
-					io.WriteString(os.Stdout, line)
-					io.WriteString(os.Stdout, "\n")
-				} else {
-					slog.Debug("not a JSON response message", "line", line, "length", len(line))
+				fullLine.Write(lineBytes)
+				if !isPrefix {
+					break
 				}
+			}
+			// id hack https://github.com/mark3labs/mcp-go/issues/201
+			line := strings.ReplaceAll(fullLine.String(), `"id":null`, `"id":""`)
+
+			isResponse := log(" ... client <= proxy <= target", "line", line, false)
+			if isResponse {
+				io.WriteString(os.Stdout, line)
+				io.WriteString(os.Stdout, "\n")
+			} else {
+				slog.Debug("not a JSON response message", "line", line, "length", len(line))
 			}
 		}
 	}
