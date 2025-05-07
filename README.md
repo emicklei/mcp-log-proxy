@@ -43,6 +43,7 @@ You can set the browser page title using the `title` flag:
 ### Claude examples
 
 This example proxies the use of the `melrose-mcp` server.
+Locate the binaries to get the correct paths.
 
     "melrōse": {
       "command": "/Users/emicklei/go/bin/mcp-log-proxy",
@@ -77,8 +78,9 @@ Proxying the `browsermcp` server.
 ### Goose Example
 
 This example proxies the use of the `melrose-mcp` server.
+Locate the binaries to get the correct paths.
 ```
-mcp-log-proxy -command melrose-mcp -log goose-melrose.log -port 8888 -title Melrose-MCP
+/Users/emicklei/go/bin/mcp-log-proxy -command /Users/emicklei/go/bin/melrose-mcp -log /Users/emicklei/Library/Logs/goose-melrose.log -port 8888 -title Melrose-MCP
 ```
 
 ### Error information
