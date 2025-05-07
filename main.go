@@ -5,10 +5,12 @@ import (
 	"flag"
 	"fmt"
 	"log/slog"
+	"net"
 	"net/http"
 	"os"
 	"os/exec"
 	"os/signal"
+	"strconv"
 	"strings"
 	"syscall"
 
@@ -53,7 +55,9 @@ func main() {
 
 	// serve nanny
 	go func() {
-		http.ListenAndServe(fmt.Sprintf(":%d", *httPort), nil)
+		if err := http.ListenAndServe(net.JoinHostPort("localhost", strconv.Itoa(*httPort)), nil); err != nil {
+			slog.Error("failed to serve logs page, STDIO transport is uninterrupted", "error", err)
+		}
 	}()
 
 	// run target command
