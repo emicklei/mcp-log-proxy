@@ -74,6 +74,13 @@ Proxying the `browsermcp` server.
       ]
     }
 
+### Goose Example
+
+This example proxies the use of the `melrose-mcp` server.
+```
+mcp-log-proxy -command melrose-mcp -log goose-melrose.log -port 8888 -title Melrose-MCP
+```
+
 ### Error information
 
 ![web log view](doc/screenshot1.png)
