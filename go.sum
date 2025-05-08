@@ -1,6 +1,6 @@
 github.com/DmitriyVTitov/size v1.5.0 h1:/PzqxYrOyOUX1BXj6J9OuVRVGe+66VL4D9FlUaW515g=
 github.com/DmitriyVTitov/size v1.5.0/go.mod h1:le6rNI4CoLQV1b9gzp1+3d7hMAD/uu2QcJ+aYbNgiU0=
-github.com/emicklei/nanny v1.52.0 h1:ogw7rJYPgtPd4UKW43wP+hB12N9S+ccTgpheWpRKLpk=
-github.com/emicklei/nanny v1.52.0/go.mod h1:HirkAXn82J7NJ5Zx+uQnDPwNfmmNFcrKdxe5/Z+7nGg=
+github.com/emicklei/nanny v1.53.0 h1:uWy9LK7AGb0oM15KGazsR/FL0e8EDhUmBHj/0BecYQ0=
+github.com/emicklei/nanny v1.53.0/go.mod h1:HirkAXn82J7NJ5Zx+uQnDPwNfmmNFcrKdxe5/Z+7nGg=
 github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da h1:oI5xCqsCo564l8iNU+DwB5epxmsaqB+rhGL0m5jtYqE=
 github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da/go.mod h1:cIg4eruTrX1D+g88fzRXU5OdNfaM+9IcxsU14FzY7Hc=
