@@ -1,0 +1,1 @@
+package lockedfile is copied (2025-05-08) from https://pkg.go.dev/cmd/go/internal/lockedfile
