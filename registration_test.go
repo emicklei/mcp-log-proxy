@@ -9,7 +9,6 @@ import (
 )
 
 func TestUpdateInstances(t *testing.T) {
-	*registryLocation = "/tmp/test-instances.log"
 
 	pi := proxyInstance{
 		Host:    "localhost",

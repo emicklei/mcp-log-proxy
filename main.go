@@ -18,12 +18,11 @@ import (
 )
 
 var (
-	targetCommand    = flag.String("command", "", "full command with arguments")
-	errLog           = flag.String("log", "mcp-log-proxy.log", "file to append errors to")
-	httPort          = flag.Int("port", 5656, "port to listen on")
-	pageTitle        = flag.String("title", "mcp-log-proxy", "title of the web page")
-	isDebug          = flag.Bool("debug", false, "enable debug logging")
-	registryLocation = flag.String("registry", "/tmp/mcp-log-proxy-instances.json", "file to store proxy instances")
+	targetCommand = flag.String("command", "", "full command with arguments")
+	errLog        = flag.String("log", "mcp-log-proxy.log", "file to append errors to")
+	httPort       = flag.Int("port", 5656, "port to listen on")
+	pageTitle     = flag.String("title", "mcp-log-proxy", "title of the web page")
+	isDebug       = flag.Bool("debug", false, "enable debug logging")
 )
 
 func main() {

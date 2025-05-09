@@ -87,5 +87,8 @@ Locate the binaries to get the correct paths.
 
 ![web log view](doc/screenshot1.png)
 
+### Multiple proxies
+
+All running mcp-log-proxy processes will register themselves in `.mcp-log-proxy-instances.json` located in your home directory.
 
 &copy; 2025, https://ernestmicklei.com. MIT License.
