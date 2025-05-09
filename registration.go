@@ -17,7 +17,7 @@ type proxyInstance struct {
 	Command string `json:"command"`
 }
 
-func updateRegistry(inst proxyInstance, isRemove bool) error {
+func addToOrRemoveFromRegistry(inst proxyInstance, isRemove bool) error {
 	err := lockedfile.Transform(registryLocation, func(stored []byte) ([]byte, error) {
 		list := []proxyInstance{}
 		if len(stored) > 0 { // file has content
@@ -46,7 +46,7 @@ func updateRegistry(inst proxyInstance, isRemove bool) error {
 	return err
 }
 
-func readRegistry() ([]proxyInstance, error) {
+func readRegistryEntries() ([]proxyInstance, error) {
 	content, err := lockedfile.Read(registryLocation)
 	if err != nil {
 		return nil, err

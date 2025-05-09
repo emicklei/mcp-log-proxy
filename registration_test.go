@@ -17,22 +17,22 @@ func TestUpdateInstances(t *testing.T) {
 		Title:   "mcp-log-proxy",
 		Command: "echo hello",
 	}
-	err := updateRegistry(pi, false)
+	err := addToOrRemoveFromRegistry(pi, false)
 	if err != nil {
 		t.Fatalf("failed to register instance: %v", err)
 	}
-	one, err := readRegistry()
+	one, err := readRegistryEntries()
 	if err != nil {
 		t.Fatalf("failed to read instance: %v", err)
 	}
 	if len(one) != 1 {
 		t.Fatalf("expected 1 instance, got %d", len(one))
 	}
-	err = updateRegistry(pi, true)
+	err = addToOrRemoveFromRegistry(pi, true)
 	if err != nil {
 		t.Fatalf("failed to register instance: %v", err)
 	}
-	none, err := readRegistry()
+	none, err := readRegistryEntries()
 	if err != nil {
 		t.Fatalf("failed to read registry: %v", err)
 	}
