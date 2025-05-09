@@ -39,7 +39,7 @@ func TestUpdateInstances(t *testing.T) {
 	if len(none) != 0 {
 		t.Fatalf("expected 0 registry, got %d", len(none))
 	}
-	all, _ := os.ReadFile(*registryLocation)
+	all, _ := os.ReadFile(getRegistryLocation())
 	if len(all) != 2 {
 		t.Fatalf("expected '[]' in file, got %d bytes : '%s'", len(all), string(all))
 	}
