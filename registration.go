@@ -6,10 +6,6 @@ import (
 	"github.com/emicklei/mcp-log-proxy/lockedfile"
 )
 
-var (
-	registryLocation = "/tmp/mcp-log-proxy-instances.json"
-)
-
 type proxyInstance struct {
 	Host    string `json:"host"`
 	Port    int    `json:"port"`
@@ -18,7 +14,7 @@ type proxyInstance struct {
 }
 
 func addToOrRemoveFromRegistry(inst proxyInstance, isRemove bool) error {
-	err := lockedfile.Transform(registryLocation, func(stored []byte) ([]byte, error) {
+	err := lockedfile.Transform(*registryLocation, func(stored []byte) ([]byte, error) {
 		list := []proxyInstance{}
 		if len(stored) > 0 { // file has content
 			err := json.Unmarshal(stored, &list)
@@ -47,7 +43,7 @@ func addToOrRemoveFromRegistry(inst proxyInstance, isRemove bool) error {
 }
 
 func readRegistryEntries() ([]proxyInstance, error) {
-	content, err := lockedfile.Read(registryLocation)
+	content, err := lockedfile.Read(*registryLocation)
 	if err != nil {
 		return nil, err
 	}

@@ -9,7 +9,7 @@ import (
 )
 
 func TestUpdateInstances(t *testing.T) {
-	registryLocation = "/tmp/test-instances.log"
+	*registryLocation = "/tmp/test-instances.log"
 
 	pi := proxyInstance{
 		Host:    "localhost",
@@ -39,9 +39,9 @@ func TestUpdateInstances(t *testing.T) {
 	if len(none) != 0 {
 		t.Fatalf("expected 0 registry, got %d", len(none))
 	}
-	all, _ := os.ReadFile("instances.json")
+	all, _ := os.ReadFile(*registryLocation)
 	if len(all) != 2 {
-		t.Fatalf("expected [] file, got %d bytes", len(all))
+		t.Fatalf("expected '[]' in file, got %d bytes : '%s'", len(all), string(all))
 	}
 }
 
