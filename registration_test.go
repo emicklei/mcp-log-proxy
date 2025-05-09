@@ -3,6 +3,9 @@ package main
 import (
 	"os"
 	"testing"
+	"time"
+
+	"github.com/emicklei/mcp-log-proxy/lockedfile"
 )
 
 func TestUpdateInstances(t *testing.T) {
@@ -40,4 +43,23 @@ func TestUpdateInstances(t *testing.T) {
 	if len(all) != 2 {
 		t.Fatalf("expected [] file, got %d bytes", len(all))
 	}
+}
+
+func TestLock(t *testing.T) {
+	f1, err := lockedfile.OpenFile("instances.json", os.O_RDWR|os.O_CREATE, 0666)
+	if err != nil {
+		t.Fatalf("failed to open locked file: %v", err)
+	}
+	defer f1.Close()
+	go func() {
+		time.Sleep(1 * time.Second)
+		f1.Close()
+	}()
+	t.Log("waiting for lock to be released")
+	f2, err := lockedfile.OpenFile("instances.json", os.O_RDWR|os.O_CREATE, 0666)
+	if err != nil {
+		t.Fatalf("failed to open locked file: %v", err)
+	}
+	defer f2.Close()
+	t.Log("got second lock")
 }

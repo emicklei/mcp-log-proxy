@@ -93,6 +93,8 @@ func main() {
 	go func() {
 		if err := updateRegistry(whoami, false); err != nil {
 			slog.Error("failed to add to registry", "error", err)
+		} else {
+			slog.Debug("added to registry", "instance", whoami)
 		}
 		if err := http.ListenAndServe(net.JoinHostPort("localhost", strconv.Itoa(*httPort)), nil); err != nil {
 			slog.Error("failed to serve logs page, STDIO transport is uninterrupted", "error", err)
@@ -127,5 +129,8 @@ func main() {
 }
 
 func abort(pi proxyInstance, code int) {
-	updateRegistry(pi, true)
+	if err := updateRegistry(pi, true); err != nil {
+		slog.Error("failed to update registry on abort", "error", err)
+	}
+	os.Exit(code)
 }
