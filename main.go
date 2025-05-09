@@ -53,6 +53,7 @@ func main() {
 	reclog := slog.New(nanny.NewLogHandler(rec, logHandler, lvl))
 	slog.SetDefault(reclog)
 	http.Handle("/", nanny.NewBrowser(rec, nanny.BrowserOptions{PageSize: 100, PageTitle: *pageTitle}))
+	http.HandleFunc("/all", dashboard)
 
 	// run target command
 	parts := strings.Split(*targetCommand, " ")
