@@ -53,13 +53,6 @@ func main() {
 	slog.SetDefault(reclog)
 	http.Handle("/", nanny.NewBrowser(rec, nanny.BrowserOptions{PageSize: 100, PageTitle: *pageTitle}))
 
-	// serve nanny
-	go func() {
-		if err := http.ListenAndServe(net.JoinHostPort("localhost", strconv.Itoa(*httPort)), nil); err != nil {
-			slog.Error("failed to serve logs page, STDIO transport is uninterrupted", "error", err)
-		}
-	}()
-
 	// run target command
 	parts := strings.Split(*targetCommand, " ")
 	cmd := exec.Command(parts[0], parts[1:]...)
@@ -89,28 +82,50 @@ func main() {
 		cancel()
 	}()
 
+	whoami := proxyInstance{
+		Host:    "localhost",
+		Port:    *httPort,
+		Title:   *pageTitle,
+		Command: *targetCommand,
+	}
+
+	// serve nanny
+	go func() {
+		if err := updateRegistry(whoami, false); err != nil {
+			slog.Error("failed to add to registry", "error", err)
+		}
+		if err := http.ListenAndServe(net.JoinHostPort("localhost", strconv.Itoa(*httPort)), nil); err != nil {
+			slog.Error("failed to serve logs page, STDIO transport is uninterrupted", "error", err)
+			updateRegistry(whoami, true)
+		}
+	}()
+
 	// client -> proxy -> target
 	go func() {
 		runClientToTarget(ctx, stdin)
 		cancel()
-		os.Exit(0)
+		abort(whoami, 0)
 	}()
 
 	// target -> proxy -> client
 	go func() {
 		runTargetToClient(ctx, stdout)
 		cancel()
-		os.Exit(0)
+		abort(whoami, 0)
 	}()
 
 	// run target command
 	if err := cmd.Start(); err != nil {
 		slog.Error("failed to start target command", "error", err, "command", parts[0], "args", parts[1:])
-		os.Exit(1)
+		abort(whoami, 1)
 	}
 	// wait for target command to finish
 	if err := cmd.Wait(); err != nil {
 		slog.Error("failed to wait for target command", "error", err, "command", parts[0], "args", parts[1:])
-		os.Exit(1)
+		abort(whoami, 1)
 	}
+}
+
+func abort(pi proxyInstance, code int) {
+	updateRegistry(pi, true)
 }
