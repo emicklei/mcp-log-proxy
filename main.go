@@ -98,10 +98,24 @@ func main() {
 		} else {
 			slog.Debug("added to registry", "instance", whoami)
 		}
-		if err := http.ListenAndServe(net.JoinHostPort("localhost", strconv.Itoa(*httPort)), nil); err != nil {
-			slog.Error("failed to serve logs page, STDIO transport is uninterrupted", "error", err)
-			addToOrRemoveFromRegistry(whoami, true)
+		// use the given port to listen, fall back to a free port if it is already in use
+		if err := http.ListenAndServe(net.JoinHostPort("localhost", strconv.Itoa(whoami.Port)), nil); err != nil {
+			if strings.Contains(err.Error(), "bind: address already in use") {
+				// try with a different port
+				newPort, err := GetFreePort()
+				if err == nil {
+					whoami.Port = newPort
+					// add new port to registry
+					addToOrRemoveFromRegistry(whoami, false)
+					http.ListenAndServe(net.JoinHostPort("localhost", strconv.Itoa(whoami.Port)), nil)
+				} else {
+					slog.Error("failed to get free port, cannot start log service", "error", err)
+				}
+			} else {
+				slog.Error("failed to start HTTP log service", "error", err)
+			}
 		}
+		addToOrRemoveFromRegistry(whoami, true)
 	}()
 
 	// client -> proxy -> target
@@ -135,4 +149,19 @@ func abort(pi proxyInstance, code int) {
 		slog.Error("failed to remote from registry on abort", "error", err)
 	}
 	os.Exit(code)
+}
+
+// GetFreePort asks the kernel for a free open port that is ready to use.
+func GetFreePort() (int, error) {
+	addr, err := net.ResolveTCPAddr("tcp", "localhost:0")
+	if err != nil {
+		return 0, err
+	}
+
+	l, err := net.ListenTCP("tcp", addr)
+	if err != nil {
+		return 0, err
+	}
+	defer l.Close()
+	return l.Addr().(*net.TCPAddr).Port, nil
 }
