@@ -53,7 +53,51 @@ func main() {
 	slog.SetDefault(reclog)
 	options := nanny.BrowserOptions{
 		PageSize:  100,
-		PageTitle: *pageTitle}
+		PageTitle: *pageTitle,
+		BeforeHTMLTableFunc: func() string {
+			instances, err := readRegistryEntries()
+			sb := strings.Builder{}
+			if err != nil {
+				sb.WriteString("<mark>")
+				sb.WriteString(err.Error())
+				sb.WriteString("</mark>")
+				return sb.String()
+			}
+			sb.WriteString("<select id=\"instance-selector\">")
+
+			// Get current host:port
+			currentHostPort := "localhost:" + strconv.Itoa(*httPort)
+
+			for _, i := range instances {
+				instanceURL := "http://" + i.Host + ":" + strconv.Itoa(i.Port)
+				selected := ""
+				if i.Host+":"+strconv.Itoa(i.Port) == currentHostPort {
+					selected = " selected"
+				}
+				sb.WriteString("<option value=\"" + instanceURL + "\"" + selected + ">")
+				sb.WriteString(i.Title + " (" + i.Host + ":" + strconv.Itoa(i.Port) + ")")
+				sb.WriteString("</option>")
+			}
+
+			sb.WriteString("</select>")
+
+			return sb.String()
+		},
+		EndHTMLHeadFunc: func() string {
+			return `
+			<script>
+			document.addEventListener('DOMContentLoaded', function() {
+				var selector = document.getElementById('instance-selector');
+				if (selector) {
+					selector.addEventListener('change', function() {
+						window.location.href = this.value;
+					});
+				}
+			});
+			</script>
+			`
+		},
+	}
 	http.Handle("/", nanny.NewBrowser(rec, options))
 
 	// run target command
