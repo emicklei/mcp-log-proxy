@@ -36,7 +36,7 @@ brews:
     license: "MIT"
     repository:
       owner: emicklei
-      name: homebrew-taps
+      name: homebrew-tap
       branch: main
 
 changelog:
