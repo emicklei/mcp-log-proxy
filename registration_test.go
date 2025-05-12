@@ -10,7 +10,7 @@ import (
 
 func TestUpdateInstances(t *testing.T) {
 
-	pi := proxyInstance{
+	pi := &proxyInstance{
 		Host:    "localhost",
 		Port:    5656,
 		Title:   "mcp-log-proxy",
