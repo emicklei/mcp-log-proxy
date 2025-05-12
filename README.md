@@ -6,6 +6,12 @@ Currently, it only supports the STDIO interface.
 
 ![web log view](doc/screenshot2.png)
 
+### Multiple proxies
+
+![multi flow](doc/multiple_proxies.png)
+
+All running mcp-log-proxy processes will register themselves in `.mcp-log-proxy-instances.json` located in your home directory. On the web page, you can use the selector to switch to another proxy instance.
+
 ## install
 ```shell
 brew tap "emicklei/tap"
@@ -95,11 +101,5 @@ Locate the binaries to get the correct paths.
 ### Error information
 
 ![web log view](doc/screenshot1.png)
-
-### Multiple proxies
-
-![multi flow](doc/multiple_proxies.png)
-
-All running mcp-log-proxy processes will register themselves in `.mcp-log-proxy-instances.json` located in your home directory. On the web page, you can use the selector to switch to another proxy instance.
 
 &copy; 2025, https://ernestmicklei.com. MIT License.
