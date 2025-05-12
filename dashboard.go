@@ -30,7 +30,11 @@ func (is *instanceSelector) beforeTableHTML() string {
 			selected = " selected"
 		}
 		sb.WriteString("<option value=\"" + instanceURL + "\"" + selected + ">")
-		sb.WriteString(i.Title + " (" + i.Host + ":" + strconv.Itoa(i.Port) + ")")
+		if i.Host+":"+strconv.Itoa(i.Port) == currentHostPort {
+			sb.WriteString("▼ " + i.Title + " :: " + i.Host + ":" + strconv.Itoa(i.Port) + " :: " + i.Command)
+		} else {
+			sb.WriteString(i.Title + " :: " + i.Host + ":" + strconv.Itoa(i.Port) + " :: " + i.Command)
+		}
 		sb.WriteString("</option>")
 	}
 
