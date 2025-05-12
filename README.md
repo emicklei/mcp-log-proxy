@@ -7,8 +7,21 @@ Currently, it only supports the STDIO interface.
 ![web log view](doc/screenshot2.png)
 
 ## install
+```shell
+brew tap "emicklei/tap"
+```
 
-    go install github.com/emicklei/mcp-log-proxy@latest
+and then
+
+```shell
+brew install emicklei/mcp-log-proxy
+```
+
+or via Go
+
+```shell
+go install github.com/emicklei/mcp-log-proxy@latest
+```
 
 ### usage
 
