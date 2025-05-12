@@ -20,7 +20,7 @@ brew tap "emicklei/tap"
 and then
 
 ```shell
-brew install emicklei/mcp-log-proxy
+brew install emicklei/tap/mcp-log-proxy
 ```
 
 or via Go
