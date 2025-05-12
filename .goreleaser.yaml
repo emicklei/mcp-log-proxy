@@ -1,0 +1,47 @@
+version: 2
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+
+archives:
+  - formats: [tar.gz]
+    # this name template makes the OS and Arch compatible with the results of `uname`.
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    # use zip for windows archives
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+
+brews:
+  - name: mcp-log-proxy
+    url_template: "https://github.com/emicklei/mcp-log-proxy/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+    commit_author:
+      name: Ernest Micklei
+      email: gh@flaticols.dev
+    directory: Formula
+    homepage: "https://bump.flaticols.dev"
+    description: "Bump semver git tag in yours repository"
+    commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
+    license: "MIT"
+    repository:
+      owner: emicklei
+      name: homebrew-taps
+      branch: main
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
