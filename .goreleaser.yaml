@@ -28,10 +28,10 @@ brews:
     url_template: "https://github.com/emicklei/mcp-log-proxy/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
     commit_author:
       name: Ernest Micklei
-      email: gh@flaticols.dev
+      email: ernest.micklei@gmail.com
     directory: Formula
-    homepage: "https://bump.flaticols.dev"
-    description: "Bump semver git tag in yours repository"
+    homepage: "https://github.com/emicklei/mcp-log-proxy"
+    description: "a web logging proxy for MCP client-server communication"
     commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
     license: "MIT"
     repository:
