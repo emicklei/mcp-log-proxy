@@ -15,9 +15,9 @@ type proxyInstance struct {
 	Command string `json:"command"`
 }
 
-func addToOrRemoveFromRegistry(inst proxyInstance, isRemove bool) error {
+func addToOrRemoveFromRegistry(inst *proxyInstance, isRemove bool) error {
 	err := lockedfile.Transform(getRegistryLocation(), func(stored []byte) ([]byte, error) {
-		list := []proxyInstance{}
+		list := []*proxyInstance{}
 		if len(stored) > 0 { // file has content
 			err := json.Unmarshal(stored, &list)
 			if err != nil {
@@ -25,7 +25,7 @@ func addToOrRemoveFromRegistry(inst proxyInstance, isRemove bool) error {
 			}
 		}
 		if isRemove {
-			withRemoval := []proxyInstance{}
+			withRemoval := []*proxyInstance{}
 			for _, each := range list {
 				if !(each.Host == inst.Host && each.Port == inst.Port) {
 					withRemoval = append(withRemoval, each)

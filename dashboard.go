@@ -1,23 +1,55 @@
 package main
 
 import (
-	"net/http"
 	"strconv"
+	"strings"
 )
 
-func dashboard(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html")
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("<html><body><h1>Dashboard</h1></body></html>"))
-	w.Write([]byte("<h2>Instances</h2>"))
+type instanceSelector struct {
+	current *proxyInstance
+}
+
+func (is *instanceSelector) beforeTableHTML() string {
 	instances, err := readRegistryEntries()
+	sb := strings.Builder{}
 	if err != nil {
-		w.Write([]byte("<p>Error reading registry: " + err.Error() + "</p>"))
-		return
+		sb.WriteString("<mark>")
+		sb.WriteString(err.Error())
+		sb.WriteString("</mark>")
+		return sb.String()
 	}
-	w.Write([]byte("<ul>"))
-	for _, instance := range instances {
-		w.Write([]byte("<li>" + instance.Host + ":" + strconv.Itoa(instance.Port) + "</li>"))
+	sb.WriteString("<select id=\"instance-selector\">")
+
+	// Get current host:port
+	currentHostPort := "localhost:" + strconv.Itoa(*httPort)
+
+	for _, i := range instances {
+		instanceURL := "http://" + i.Host + ":" + strconv.Itoa(i.Port)
+		selected := ""
+		if i.Host+":"+strconv.Itoa(i.Port) == currentHostPort {
+			selected = " selected"
+		}
+		sb.WriteString("<option value=\"" + instanceURL + "\"" + selected + ">")
+		sb.WriteString(i.Title + " (" + i.Host + ":" + strconv.Itoa(i.Port) + ")")
+		sb.WriteString("</option>")
 	}
-	w.Write([]byte("</ul>"))
+
+	sb.WriteString("</select>")
+
+	return sb.String()
+}
+
+func (is *instanceSelector) endHeadHTML() string {
+	return `
+			<script>
+			document.addEventListener('DOMContentLoaded', function() {
+				var selector = document.getElementById('instance-selector');
+				if (selector) {
+					selector.addEventListener('change', function() {
+						window.location.href = this.value;
+					});
+				}
+			});
+			</script>
+			`
 }
