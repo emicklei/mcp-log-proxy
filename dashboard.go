@@ -21,7 +21,7 @@ func (is *instanceSelector) beforeTableHTML() string {
 	sb.WriteString("<select id=\"instance-selector\">")
 
 	// Get current host:port
-	currentHostPort := "localhost:" + strconv.Itoa(*httPort)
+	currentHostPort := "localhost:" + strconv.Itoa(is.current.Port)
 
 	for _, i := range instances {
 		instanceURL := "http://" + i.Host + ":" + strconv.Itoa(i.Port)
