@@ -36,22 +36,18 @@ You can override the log file location of the proxy that captures errors in the 
 
     mcp-log-proxy -command melrose-mcp -log /your/logs/mcp-log-proxy.log
 
-You can set the browser page title using the `title` flag:
-
-    mcp-log-proxy -command melrose-mcp -title "Melrose MCP proxy"
-
 ### Claude examples
 
 This example proxies the use of the `melrose-mcp` server.
 Locate the binaries to get the correct paths.
 
     "melrōse": {
-      "command": "/Users/emicklei/go/bin/mcp-log-proxy",
+      "command": "/Users/SOME-USER/go/bin/mcp-log-proxy",
       "args": [
         "-command",
-        "/Users/emicklei/go/bin/melrose-mcp -log /Users/emicklei/Documents/claude-melrose.log",
+        "/Users/SOME-USER/go/bin/melrose-mcp -log /Users/SOME-USER/Library/Logs/claude-melrose.log",
         "-log",
-        "/Users/emicklei/Documents/claude-melrose-proxy.log",
+        "/Users/SOME-USER/Library/Logs/claude-melrose-proxy.log",
         "-port",
         "7788",
         "-title",
@@ -62,12 +58,12 @@ Locate the binaries to get the correct paths.
 Proxying the `browsermcp` server.
 
     "browsermcp": {
-      "command": "/Users/emicklei/go/bin/mcp-log-proxy",
+      "command": "/Users/SOME-USER/go/bin/mcp-log-proxy",
       "args": [
         "-command",
         "npx @browsermcp/mcp@latest",
         "-log",
-        "/Users/emicklei/Documents/claude-browsermcp-proxy.log",
+        "/Users/SOME-USER/Library/Logs/claude-browsermcp-proxy.log",
         "-port",
         "7799",
         "-title",
@@ -80,7 +76,7 @@ Proxying the `browsermcp` server.
 This example proxies the use of the `melrose-mcp` server.
 Locate the binaries to get the correct paths.
 ```
-/Users/emicklei/go/bin/mcp-log-proxy -command /Users/emicklei/go/bin/melrose-mcp -log /Users/emicklei/Library/Logs/goose-melrose.log -port 8888 -title Melrose-MCP
+/Users/SOME-USER/go/bin/mcp-log-proxy -command /Users/SOME-USER/go/bin/melrose-mcp -log /Users/SOME-USER/Library/Logs/goose-melrose.log -port 8888 -title Melrose-MCP
 ```
 
 ### Error information
