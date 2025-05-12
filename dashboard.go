@@ -33,7 +33,7 @@ func (is *instanceSelector) beforeTableHTML() string {
 		if i.Host+":"+strconv.Itoa(i.Port) == currentHostPort {
 			sb.WriteString("▼ " + i.Title + " :: " + i.Host + ":" + strconv.Itoa(i.Port) + " :: " + i.Command)
 		} else {
-			sb.WriteString(i.Title + " :: " + i.Host + ":" + strconv.Itoa(i.Port) + " :: " + i.Command)
+			sb.WriteString("  " + i.Title + " :: " + i.Host + ":" + strconv.Itoa(i.Port) + " :: " + i.Command)
 		}
 		sb.WriteString("</option>")
 	}
