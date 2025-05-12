@@ -98,6 +98,8 @@ Locate the binaries to get the correct paths.
 
 ### Multiple proxies
 
-All running mcp-log-proxy processes will register themselves in `.mcp-log-proxy-instances.json` located in your home directory.
+![multi flow](doc/multiple_proxies.png)
+
+All running mcp-log-proxy processes will register themselves in `.mcp-log-proxy-instances.json` located in your home directory. On the web page, you can use the selector to switch to another proxy instance.
 
 &copy; 2025, https://ernestmicklei.com. MIT License.
