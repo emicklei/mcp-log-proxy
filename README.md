@@ -51,6 +51,8 @@ You can override the HTTP port(default 5656) using the `port` flag:
 
     mcp-log-proxy -command melrose-mcp -port 9999
 
+When running multiple proxies, the `mcp-log-proxy` will detect whether a HTTP port is taken and choose a different port instead. Using the Web UI you can select any of the other running proxies.
+
 You can override the log file location of the proxy that captures errors in the proxy itself using the `log` flag:
 
     mcp-log-proxy -command melrose-mcp -log /your/logs/mcp-log-proxy.log
