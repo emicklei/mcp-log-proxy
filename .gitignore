@@ -1,2 +1,4 @@
 instances.json
 .DS_Store
+lockedfile/internal/filelock/testfile.txt.lock
+instances.json.lock
