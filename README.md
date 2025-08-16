@@ -1,4 +1,5 @@
 ## mcp-log-proxy
+[![Trust Score](https://archestra.ai/mcp-catalog/api/badge/quality/emicklei/mcp-log-proxy)](https://archestra.ai/mcp-catalog/emicklei__mcp-log-proxy)
 
 `mcp-log-proxy` can be used to see the messages to and from a MCP client and a MCP server using a Web interface.
 
