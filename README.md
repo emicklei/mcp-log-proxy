@@ -106,3 +106,8 @@ Locate the binaries to get the correct paths.
 ![web log view](doc/screenshot1.png)
 
 &copy; 2025, https://ernestmicklei.com. MIT License.
+
+## Hosted deployment
+
+A hosted deployment is available on [Fronteir AI](https://fronteir.ai/mcp/emicklei-mcp-log-proxy).
+
