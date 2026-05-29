@@ -9,6 +9,7 @@ import (
 )
 
 func TestUpdateInstances(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
 
 	pi := &proxyInstance{
 		Host:    "localhost",

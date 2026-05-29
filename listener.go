@@ -15,15 +15,15 @@ func registerAndStartListener(whoami *proxyInstance) {
 		slog.Debug("added to registry", "instance", whoami)
 	}
 	// use the given port to listen, fall back to a free port if it is already in use
-	if err := http.ListenAndServe(net.JoinHostPort("localhost", strconv.Itoa(whoami.Port)), nil); err != nil {
+	if err := http.ListenAndServe(net.JoinHostPort(whoami.Host, strconv.Itoa(whoami.Port)), nil); err != nil {
 		if strings.Contains(err.Error(), "bind: address already in use") {
 			// try with a different port
-			newPort, err := GetFreePort()
+			newPort, err := GetFreePort(whoami.Host)
 			if err == nil {
 				whoami.Port = newPort
 				// add new port to registry
 				addToOrRemoveFromRegistry(whoami, false)
-				http.ListenAndServe(net.JoinHostPort("localhost", strconv.Itoa(whoami.Port)), nil)
+				http.ListenAndServe(net.JoinHostPort(whoami.Host, strconv.Itoa(whoami.Port)), nil)
 			} else {
 				slog.Error("failed to get free port, cannot start log service", "error", err)
 			}

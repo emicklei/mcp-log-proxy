@@ -40,9 +40,14 @@ For example, to proxy traffic to the `melrose-mcp` server, the full command is:
 
 This example assumes that both tools are available on your execution PATH.
 
-Once the proxy is started, messages can be viewed on `http:/localhost:5656`.
+Once the proxy is started, messages can be viewed on `http://localhost:5656`.
 
 #### optional flags
+
+You can override the HTTP host address (default `localhost`) using the `host` flag, for example to listen on all interfaces or a specific interface address:
+
+    mcp-log-proxy -command melrose-mcp -host 0.0.0.0
+    mcp-log-proxy -command melrose-mcp -host 1.2.3.4
 
 You can override the Web page title using the `title` flag:
 

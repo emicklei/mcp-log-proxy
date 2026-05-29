@@ -1,6 +1,7 @@
 package main
 
 import (
+	"net"
 	"strconv"
 	"strings"
 )
@@ -20,17 +21,15 @@ func (is *instanceSelector) beforeTableHTML() string {
 	}
 	sb.WriteString("<select id=\"instance-selector\">")
 
-	// Get current host:port
-	currentHostPort := "localhost:" + strconv.Itoa(is.current.Port)
-
 	for _, i := range instances {
-		instanceURL := "http://" + i.Host + ":" + strconv.Itoa(i.Port)
+		instanceURL := "http://" + net.JoinHostPort(i.Host, strconv.Itoa(i.Port))
+		isCurrent := i.Host == is.current.Host && i.Port == is.current.Port
 		selected := ""
-		if i.Host+":"+strconv.Itoa(i.Port) == currentHostPort {
+		if isCurrent {
 			selected = " selected"
 		}
 		sb.WriteString("<option value=\"" + instanceURL + "\"" + selected + ">")
-		if i.Host+":"+strconv.Itoa(i.Port) == currentHostPort {
+		if isCurrent {
 			sb.WriteString("▼ " + i.Title + " :: " + i.Host + ":" + strconv.Itoa(i.Port) + " :: " + i.Command)
 		} else {
 			sb.WriteString("  " + i.Title + " :: " + i.Host + ":" + strconv.Itoa(i.Port) + " :: " + i.Command)

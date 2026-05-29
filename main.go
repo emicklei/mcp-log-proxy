@@ -18,6 +18,7 @@ import (
 var (
 	targetCommand = flag.String("command", "", "full command with arguments")
 	errLog        = flag.String("log", "mcp-log-proxy.log", "file to append errors to")
+	httpHost      = flag.String("host", "localhost", "host address to listen on")
 	httPort       = flag.Int("port", 5656, "port to listen on")
 	pageTitle     = flag.String("title", "mcp-log-proxy", "title of the web page")
 	isDebug       = flag.Bool("debug", false, "enable debug logging")
@@ -49,7 +50,7 @@ func main() {
 	}
 
 	whoami := &proxyInstance{
-		Host:    "localhost",
+		Host:    *httpHost,
 		Port:    *httPort,
 		Title:   *pageTitle,
 		Command: *targetCommand,
